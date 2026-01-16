@@ -1,0 +1,21 @@
+{
+  "name": "postpreview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ChatGPT-native app for previewing social media posts",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:mcp\" \"npm run dev:web\"",
+    "dev:mcp": "cd mcp-server && npm run dev",
+    "dev:web": "cd web-component && npm run dev",
+    "build": "npm run build:web && npm run build:mcp",
+    "build:mcp": "cd mcp-server && npm run build",
+    "build:web": "cd web-component && npm run build",
+    "serve": "cd web-component && npm run preview"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
