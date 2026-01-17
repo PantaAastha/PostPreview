@@ -13,6 +13,7 @@ web-component/dist/
 .env
 .env.local
 .env.*.local
+mcp-server/.env
 
 # IDE
 .vscode/

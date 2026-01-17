@@ -1,8 +1,13 @@
-import express from 'express';
-import { randomUUID } from 'crypto';
+import 'dotenv/config';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { readFileSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { URL, fileURLToPath } from 'node:url';
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { z } from 'zod';
+
 import {
     renderInstagramPost,
     type RenderInstagramPostOutput
@@ -12,48 +17,59 @@ import {
     type ValidateImageOutput
 } from './tools/validateImage.js';
 
-const PORT = process.env.PORT || 3000;
-const WIDGET_BASE_URL = process.env.WIDGET_BASE_URL || 'http://localhost:5173';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const PORT = Number(process.env.PORT) || 3000;
+const MCP_PATH = '/mcp';
 
-// Create Express app
-const app = express();
+// Load the built widget HTML
+function loadWidgetHtml(): string {
+    const webDistPath = join(__dirname, '../../web-component/dist');
+    const jsPath = join(webDistPath, 'postpreview.js');
+    const cssPath = join(webDistPath, 'postpreview.css');
 
-// Parse JSON body - required for StreamableHTTP
-app.use(express.json());
-
-// Enable CORS for all origins (required for ChatGPT)
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, mcp-session-id');
-    res.header('Access-Control-Expose-Headers', 'mcp-session-id');
-
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(200);
-        return;
+    if (existsSync(jsPath) && existsSync(cssPath)) {
+        const js = readFileSync(jsPath, 'utf-8');
+        const css = readFileSync(cssPath, 'utf-8');
+        console.log('[Widget] Loading inlined assets from dist/');
+        return `
+<div id="root"></div>
+<style>${css}</style>
+<script type="module">${js}</script>
+        `.trim();
     }
 
-    next();
-});
+    throw new Error(
+        `Widget assets not found. Run "npm run build" in web-component/ first.`
+    );
+}
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', server: 'postpreview-mcp' });
-});
+const widgetHtml = loadWidgetHtml();
 
-// Store server instances and transports by session ID
-const sessions = new Map<string, { server: McpServer; transport: StreamableHTTPServerTransport }>();
+// Input schemas using Zod (as per OpenAI quickstart)
+const renderInstagramPostInputSchema = {
+    caption: z.string().describe('The caption text for the Instagram post'),
+    imageUrl: z.string().url().optional().describe('URL of the image to display in the post'),
+    username: z.string().optional().describe('The username to display on the post'),
+    likes: z.number().optional().describe('Number of likes to display'),
+    isVerified: z.boolean().optional().describe('Whether to show a verified badge'),
+};
 
-// Initialize MCP server
-function createMcpServer(): McpServer {
-    const mcpServer = new McpServer({
+const validateImageInputSchema = {
+    width: z.number().describe('Width of the image in pixels'),
+    height: z.number().describe('Height of the image in pixels'),
+    imageUrl: z.string().optional().describe('URL of the image (for reference)'),
+};
+
+// Create the MCP server (following OpenAI quickstart pattern)
+function createPostPreviewServer(): McpServer {
+    const server = new McpServer({
         name: 'postpreview',
         version: '0.1.0',
     });
 
-    // Register the widget template as a resource
-    mcpServer.registerResource(
-        'instagram_preview',
+    // Register the widget as a resource
+    server.registerResource(
+        'instagram-preview',
         'ui://widget/instagram_preview.html',
         {},
         async () => ({
@@ -61,41 +77,32 @@ function createMcpServer(): McpServer {
                 {
                     uri: 'ui://widget/instagram_preview.html',
                     mimeType: 'text/html+skybridge',
-                    text: `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Preview</title>
-</head>
-<body>
-    <div id="root"></div>
-    <script type="module" src="${WIDGET_BASE_URL}/postpreview.js"></script>
-    <link rel="stylesheet" href="${WIDGET_BASE_URL}/postpreview.css">
-</body>
-</html>
-                    `.trim(),
+                    text: widgetHtml,
+                    _meta: {
+                        'openai/widgetPrefersBorder': true,
+                    },
                 },
             ],
         })
     );
 
-    // Register tools
-    mcpServer.registerTool(
+    // Register render_instagram_post tool
+    server.registerTool(
         'render_instagram_post',
         {
             title: 'Render Instagram Post Preview',
             description: 'Render a visual preview of an Instagram post. Use this tool when the user wants to see how their Instagram post will look, wants to create or preview captions, or is preparing social media content for Instagram.',
-            inputSchema: {
-                caption: z.string().describe('The caption text for the Instagram post'),
-                imageUrl: z.string().url().optional().describe('URL of the image to display in the post'),
-                username: z.string().default('@yourname').describe('The username to display on the post'),
-                likes: z.number().int().min(0).default(0).describe('Number of likes to display'),
-                isVerified: z.boolean().default(false).describe('Whether to show a verified badge'),
-            },
+            inputSchema: renderInstagramPostInputSchema,
             _meta: {
                 'openai/outputTemplate': 'ui://widget/instagram_preview.html',
+                'openai/toolInvocation/invoking': 'Creating Instagram preview...',
+                'openai/toolInvocation/invoked': 'Preview ready!',
+                'openai/widgetAccessible': true,
+            },
+            annotations: {
+                readOnlyHint: true,
+                destructiveHint: false,
+                openWorldHint: false,
             },
         },
         async (args) => {
@@ -106,123 +113,125 @@ function createMcpServer(): McpServer {
                 likes: (args.likes as number) || 0,
                 isVerified: (args.isVerified as boolean) || false,
             };
+
+            console.log('[Tool] render_instagram_post called with:', JSON.stringify(input, null, 2));
             const result: RenderInstagramPostOutput = renderInstagramPost(input);
+            console.log('[Tool] Returning structuredContent:', JSON.stringify(result, null, 2));
 
             return {
+                content: [{ type: 'text' as const, text: 'Rendered Instagram post preview!' }],
                 structuredContent: { ...result } as Record<string, unknown>,
-                content: [
-                    {
-                        type: 'text' as const,
-                        text: `Instagram post preview for ${input.username}: "${input.caption.substring(0, 50)}..."`,
-                    },
-                ],
-                _meta: {},
             };
         }
     );
 
-    mcpServer.registerTool(
+    // Register validate_image tool
+    server.registerTool(
         'validate_image',
         {
             title: 'Validate Image Dimensions',
             description: 'Check image dimensions against Instagram requirements. Use this tool when a user uploads an image for social media or asks about image sizing for Instagram.',
-            inputSchema: {
-                imageUrl: z.string().optional().describe('URL of the image (for reference)'),
-                width: z.number().int().positive().describe('Width of the image in pixels'),
-                height: z.number().int().positive().describe('Height of the image in pixels'),
+            inputSchema: validateImageInputSchema,
+            annotations: {
+                readOnlyHint: true,
+                destructiveHint: false,
+                openWorldHint: false,
             },
         },
         async (args) => {
             const input = {
-                imageUrl: args.imageUrl as string | undefined,
                 width: args.width as number,
                 height: args.height as number,
+                imageUrl: args.imageUrl as string | undefined,
             };
+
             const result: ValidateImageOutput = validateImage(input);
 
             return {
-                content: [
-                    {
-                        type: 'text' as const,
-                        text: JSON.stringify(result, null, 2),
-                    },
-                ],
+                content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
             };
         }
     );
 
-    return mcpServer;
+    return server;
 }
 
-// MCP endpoint - handles POST for messages, GET for SSE, DELETE for cleanup
-app.all('/mcp', async (req, res) => {
-    const sessionId = req.headers['mcp-session-id'] as string | undefined;
-    console.log(`[MCP] ${req.method} /mcp - Session: ${sessionId || 'new'}`);
+// Create HTTP server (following OpenAI quickstart pattern exactly)
+const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
+    if (!req.url) {
+        res.writeHead(400).end('Missing URL');
+        return;
+    }
 
-    // Handle initialization (POST without session ID)
-    if (req.method === 'POST' && !sessionId) {
-        // Create new session
-        const newSessionId = randomUUID();
-        const mcpServer = createMcpServer();
+    const url = new URL(req.url, `http://${req.headers.host ?? 'localhost'}`);
+
+    // CORS preflight for /mcp
+    if (req.method === 'OPTIONS' && url.pathname === MCP_PATH) {
+        res.writeHead(204, {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'content-type, mcp-session-id',
+            'Access-Control-Expose-Headers': 'Mcp-Session-Id',
+        });
+        res.end();
+        return;
+    }
+
+    // Health check
+    if (req.method === 'GET' && url.pathname === '/') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' }).end('PostPreview MCP server');
+        return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', server: 'postpreview-mcp' }));
+        return;
+    }
+
+    // MCP endpoint - POST, GET, DELETE (following official quickstart)
+    const MCP_METHODS = new Set(['POST', 'GET', 'DELETE']);
+    if (url.pathname === MCP_PATH && req.method && MCP_METHODS.has(req.method)) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id');
+
+        console.log(`\n[MCP] ${req.method} ${MCP_PATH}`);
+
+        // Create a new server instance for each request (stateless mode)
+        const server = createPostPreviewServer();
         const transport = new StreamableHTTPServerTransport({
-            sessionIdGenerator: () => newSessionId,
+            sessionIdGenerator: undefined, // stateless mode
+            enableJsonResponse: true,
         });
 
-        // Connect server to transport
-        await mcpServer.connect(transport);
+        res.on('close', () => {
+            transport.close();
+            server.close();
+        });
 
-        // Store session
-        sessions.set(newSessionId, { server: mcpServer, transport });
-        console.log(`[MCP] New session created: ${newSessionId}`);
-
-        // Handle the request
-        await transport.handleRequest(req, res, req.body);
+        try {
+            await server.connect(transport);
+            await transport.handleRequest(req, res);
+        } catch (error) {
+            console.error('[MCP] Error handling request:', error);
+            if (!res.headersSent) {
+                res.writeHead(500).end('Internal server error');
+            }
+        }
         return;
     }
 
-    // Handle existing session
-    if (sessionId) {
-        const session = sessions.get(sessionId);
-
-        if (!session) {
-            res.status(404).json({
-                jsonrpc: '2.0',
-                error: { code: -32000, message: 'Session not found' },
-                id: null,
-            });
-            return;
-        }
-
-        if (req.method === 'DELETE') {
-            await session.transport.close();
-            sessions.delete(sessionId);
-            console.log(`[MCP] Session deleted: ${sessionId}`);
-            res.status(200).json({ message: 'Session closed' });
-            return;
-        }
-
-        // Handle POST and GET for existing session
-        await session.transport.handleRequest(req, res, req.body);
-        return;
-    }
-
-    // No session and not an initialization request
-    res.status(400).json({
-        jsonrpc: '2.0',
-        error: { code: -32600, message: 'Missing mcp-session-id header' },
-        id: null,
-    });
+    res.writeHead(404).end('Not Found');
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`\n🚀 PostPreview MCP Server running on http://localhost:${PORT}`);
-    console.log(`   - MCP endpoint: http://localhost:${PORT}/mcp`);
-    console.log(`   - Health check: http://localhost:${PORT}/health`);
-    console.log(`   - Widget URL: ${WIDGET_BASE_URL}`);
+httpServer.listen(PORT, () => {
+    console.log(`\n🚀 PostPreview MCP Server listening on http://localhost:${PORT}`);
+    console.log(`   MCP endpoint: http://localhost:${PORT}${MCP_PATH}`);
+    console.log(`   Health check: GET http://localhost:${PORT}/health`);
     console.log('\nResources:');
     console.log('   - ui://widget/instagram_preview.html');
-    console.log('\nTools available:');
+    console.log('\nTools:');
     console.log('   - render_instagram_post: Preview Instagram posts');
     console.log('   - validate_image: Check image dimensions\n');
 });

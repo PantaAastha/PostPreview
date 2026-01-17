@@ -12,7 +12,9 @@ interface UseOpenAIResult {
 
 /**
  * Hook to interface with the OpenAI Apps SDK
- * Provides access to tool output, theme, and host helpers
+ * Follows the official OpenAI quickstart pattern:
+ * - Reads initial data from window.openai.toolOutput
+ * - Listens for openai:set_globals event for updates
  */
 export function useOpenAI(): UseOpenAIResult {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -25,8 +27,11 @@ export function useOpenAI(): UseOpenAIResult {
         const openai = window.openai;
 
         if (openai) {
-            // Running inside ChatGPT
+            // Running inside ChatGPT - get initial data
+            console.log('[PostPreview] Running inside ChatGPT');
+
             if (openai.toolOutput) {
+                console.log('[PostPreview] Initial toolOutput:', openai.toolOutput);
                 setToolOutput(openai.toolOutput);
             }
             if (openai.theme) {
@@ -53,8 +58,34 @@ export function useOpenAI(): UseOpenAIResult {
             });
             setIsLoaded(true);
         }
+    }, []);
 
-        // Apply theme to document
+    // Listen for openai:set_globals event (per OpenAI quickstart)
+    useEffect(() => {
+        const handleSetGlobals = (event: CustomEvent) => {
+            const globals = event.detail?.globals;
+            console.log('[PostPreview] Received openai:set_globals event:', globals);
+
+            if (globals?.toolOutput) {
+                setToolOutput(globals.toolOutput);
+            }
+            if (globals?.theme) {
+                setTheme(globals.theme);
+            }
+            if (globals?.displayMode) {
+                setDisplayMode(globals.displayMode);
+            }
+        };
+
+        window.addEventListener('openai:set_globals', handleSetGlobals as EventListener, { passive: true });
+
+        return () => {
+            window.removeEventListener('openai:set_globals', handleSetGlobals as EventListener);
+        };
+    }, []);
+
+    // Apply theme to document
+    useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme]);
 

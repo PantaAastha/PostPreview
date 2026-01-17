@@ -16,9 +16,13 @@ export default defineConfig({
     server: {
         port: 5173,
         cors: true,
+        host: true,
+        allowedHosts: true,
     },
     preview: {
-        port: 4444,
+        port: 5173,
         cors: true,
+        host: true,
+        allowedHosts: true,
     },
 });
