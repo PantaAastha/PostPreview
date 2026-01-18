@@ -1,0 +1,76 @@
+.platform-selector {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--surface, #f3f4f6);
+    border-radius: 12px;
+}
+
+.platform-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-secondary, #6b7280);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    justify-content: center;
+}
+
+.platform-tab:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.platform-tab--active {
+    background: white;
+    color: var(--text-primary, #111827);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.platform-tab--active:hover {
+    background: white;
+}
+
+.platform-tab:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.platform-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.platform-name {
+    font-size: 13px;
+}
+
+/* Disabled state */
+.platform-selector--disabled {
+    opacity: 0.7;
+}
+
+/* Dark mode */
+[data-theme="dark"] .platform-selector {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .platform-tab {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .platform-tab:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .platform-tab--active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f3f4f6;
+    box-shadow: none;
+}

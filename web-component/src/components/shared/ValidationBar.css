@@ -26,10 +26,82 @@
 }
 
 /* Items container */
+.validation-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
 .validation-items {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+}
+
+/* Engagement Badge (inside ValidationBar) */
+.engagement-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-weight: 500;
+    cursor: help;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.engagement-badge--optimal {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+
+.engagement-badge--good {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+.engagement-badge--long {
+    background: rgba(202, 138, 4, 0.1);
+    color: #ca8a04;
+}
+
+.engagement-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.engagement-label {
+    font-size: 12px;
+}
+
+/* Tooltip for engagement */
+.engagement-badge::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.engagement-badge:hover::after {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* Individual validation item */
