@@ -1,24 +1,25 @@
 import { useOpenAI } from './hooks/useOpenAI';
 import { useWidgetState } from './hooks/useWidgetState';
 import { InstagramPreview } from './components/InstagramPreview/InstagramPreview';
+import { XThreadPreview } from './components/XThreadPreview';
 import { ValidationBar, ExportBar, PlatformSelector } from './components/shared';
 import { validateInstagramCaption, INSTAGRAM_LIMITS } from './utils/validation';
 import type { InstagramPost, PlatformType, PostPreviewWidgetState } from './types/openai';
 import './App.css';
 
 /**
- * Helper to detect platform from tool output
+ * Helper to detect EXPLICIT platform from tool output
+ * Only returns platform when explicitly set - legacy format doesn't lock toggle
  */
 function detectPlatform(toolOutput: unknown): PlatformType | null {
     if (!toolOutput || typeof toolOutput !== 'object') return null;
     const output = toolOutput as Record<string, unknown>;
 
+    // Only lock to platform when explicitly specified
     if (output.platform === 'instagram') return 'instagram';
     if (output.platform === 'x') return 'x';
 
-    // Legacy format (assume Instagram)
-    if (output.post) return 'instagram';
-
+    // Legacy format or no platform - don't lock the toggle
     return null;
 }
 
@@ -86,15 +87,28 @@ function InstagramContent({ post, displayMode }: { post: InstagramPost; displayM
 }
 
 /**
- * Placeholder for X Thread content (Phase 4)
+ * X Thread content view
  */
-function XThreadContent() {
+function XThreadContent({ displayMode }: { displayMode: string }) {
+    // Demo content for testing - in real use, this comes from MCP tool
+    const demoContent = `This is a demo thread to show how the X Thread Builder works!
+
+The algorithm automatically splits your long text into tweet-sized chunks. It prioritizes natural breaking points like paragraphs, sentences, and clauses.
+
+Here's what makes it smart:
+- Preserves URLs intact
+- Adds 1/N numbering
+- Analyzes your hook quality
+
+Try pasting your own content to see it in action. The thread builder will help you craft engaging Twitter threads that capture attention. 🧵`;
+
     return (
-        <div className="coming-soon">
-            <span className="coming-soon-icon">🚧</span>
-            <p>X Thread Builder coming soon!</p>
-            <p className="coming-soon-hint">Use the Instagram preview for now</p>
-        </div>
+        <XThreadPreview
+            content={demoContent}
+            username="@postpreview"
+            displayName="PostPreview"
+            displayMode={displayMode as 'compact' | 'fullscreen'}
+        />
     );
 }
 
@@ -147,7 +161,7 @@ function App() {
             )}
 
             {currentPlatform === 'x' && (
-                <XThreadContent />
+                <XThreadContent displayMode={displayMode} />
             )}
         </div>
     );

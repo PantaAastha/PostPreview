@@ -1,0 +1,196 @@
+.tweet-card {
+    position: relative;
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid #eff3f4;
+    border-radius: 16px;
+    margin-left: 24px;
+}
+
+.tweet-card--first {
+    margin-left: 0;
+}
+
+.tweet-card--invalid {
+    border-color: #f91880;
+    background: #fff5f8;
+}
+
+/* Thread connector line */
+.tweet-connector {
+    position: absolute;
+    left: -12px;
+    top: -16px;
+    width: 2px;
+    height: 32px;
+    background: #cfd9de;
+}
+
+/* Header */
+.tweet-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.tweet-avatar {
+    flex-shrink: 0;
+}
+
+.tweet-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1d9bf0, #1a8cd8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.tweet-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.tweet-display-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #0f1419;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tweet-username {
+    font-size: 14px;
+    color: #536471;
+}
+
+.tweet-number-badge {
+    padding: 4px 10px;
+    background: #eff3f4;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #536471;
+}
+
+/* Content */
+.tweet-content {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #0f1419;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-bottom: 12px;
+}
+
+/* Footer */
+.tweet-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tweet-char-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.tweet-char-circle {
+    width: 20px;
+    height: 20px;
+}
+
+.tweet-char-text {
+    font-variant-numeric: tabular-nums;
+}
+
+.tweet-copy-btn {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid #cfd9de;
+    border-radius: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f1419;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tweet-copy-btn:hover {
+    background: #f7f9f9;
+}
+
+.tweet-copy-btn--copied {
+    background: #16a34a;
+    color: white;
+    border-color: #16a34a;
+}
+
+.tweet-copy-btn--copied:hover {
+    background: #16a34a;
+}
+
+/* Hook badge - inline in header */
+.tweet-hook-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background: #fef3c7;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #92400e;
+}
+
+/* Dark mode */
+[data-theme="dark"] .tweet-card {
+    background: #16181c;
+    border-color: #2f3336;
+}
+
+[data-theme="dark"] .tweet-card--invalid {
+    background: #1a0a10;
+    border-color: #f91880;
+}
+
+[data-theme="dark"] .tweet-connector {
+    background: #2f3336;
+}
+
+[data-theme="dark"] .tweet-display-name {
+    color: #e7e9ea;
+}
+
+[data-theme="dark"] .tweet-username {
+    color: #71767b;
+}
+
+[data-theme="dark"] .tweet-number-badge {
+    background: #2f3336;
+    color: #71767b;
+}
+
+[data-theme="dark"] .tweet-content {
+    color: #e7e9ea;
+}
+
+[data-theme="dark"] .tweet-copy-btn {
+    border-color: #2f3336;
+    color: #e7e9ea;
+}
+
+[data-theme="dark"] .tweet-copy-btn:hover {
+    background: #1d1f23;
+}

@@ -1,0 +1,156 @@
+.x-thread-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Header */
+.x-thread-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #eff3f4;
+}
+
+.x-thread-logo {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.x-thread-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.x-thread-count {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f1419;
+}
+
+.x-thread-hook-score {
+    padding: 4px 8px;
+    background: #e8f5fd;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #1d9bf0;
+    cursor: help;
+}
+
+.x-thread-copy-all {
+    padding: 8px 16px;
+    background: #0f1419;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.x-thread-copy-all:hover {
+    background: #2f3336;
+}
+
+.x-thread-copy-all--copied {
+    background: #16a34a;
+}
+
+.x-thread-copy-all--copied:hover {
+    background: #16a34a;
+}
+
+/* Warnings */
+.x-thread-warnings {
+    padding: 0 16px;
+}
+
+.x-thread-warning {
+    padding: 8px 12px;
+    background: #fff7e6;
+    border-radius: 8px;
+    font-size: 13px;
+    color: #b45309;
+    margin-bottom: 8px;
+}
+
+/* Tweet list */
+.x-thread-tweets {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+}
+
+/* Footer */
+.x-thread-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #eff3f4;
+    text-align: center;
+}
+
+.x-thread-chars {
+    font-size: 13px;
+    color: #536471;
+}
+
+/* Empty state */
+.x-thread-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    background: #f7f9f9;
+    border-radius: 16px;
+    color: #536471;
+    font-size: 15px;
+}
+
+/* Fullscreen mode */
+.x-thread-preview--fullscreen {
+    max-height: none;
+}
+
+/* Dark mode */
+[data-theme="dark"] .x-thread-preview {
+    background: #000;
+}
+
+[data-theme="dark"] .x-thread-header {
+    border-bottom-color: #2f3336;
+}
+
+[data-theme="dark"] .x-thread-count {
+    color: #e7e9ea;
+}
+
+[data-theme="dark"] .x-thread-hook-score {
+    background: #1a3650;
+    color: #1d9bf0;
+}
+
+[data-theme="dark"] .x-thread-warning {
+    background: #2d2305;
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .x-thread-footer {
+    border-top-color: #2f3336;
+}
+
+[data-theme="dark"] .x-thread-chars {
+    color: #71767b;
+}
+
+[data-theme="dark"] .x-thread-empty {
+    background: #16181c;
+    color: #71767b;
+}
