@@ -1,6 +1,9 @@
 import { useOpenAI } from './hooks/useOpenAI';
 import { InstagramPreview } from './components/InstagramPreview/InstagramPreview';
+import { ValidationBar } from './components/shared/ValidationBar';
+import { validateInstagramCaption, INSTAGRAM_LIMITS } from './utils/validation';
 import type { InstagramPost } from './types/openai';
+import './App.css';
 
 /**
  * Helper to extract Instagram post from tool output (handles both legacy and new formats)
@@ -44,16 +47,44 @@ function App() {
         );
     }
 
+    // Run validation on caption
+    const validation = validateInstagramCaption(post.caption);
+
+    // Build validation items for the ValidationBar
+    const validationItems = [
+        {
+            label: 'Caption',
+            current: validation.caption.charCount,
+            max: validation.caption.maxChars,
+            status: validation.caption.status,
+        },
+        {
+            label: 'Hashtags',
+            current: validation.hashtags.count,
+            max: INSTAGRAM_LIMITS.HASHTAG_OPTIMAL,
+            status: validation.hashtags.status,
+        },
+    ];
+
     return (
-        <InstagramPreview
-            caption={post.caption}
-            imageUrl={post.imageUrl}
-            username={post.username}
-            likes={post.likes}
-            isVerified={post.isVerified}
-            timestamp={post.timestamp}
-            displayMode={displayMode}
-        />
+        <div className="postpreview-app">
+            {/* Validation Bar - Above the preview */}
+            <ValidationBar
+                items={validationItems}
+                overallStatus={validation.overallStatus}
+            />
+
+            {/* Instagram Preview - Authentic look */}
+            <InstagramPreview
+                caption={post.caption}
+                imageUrl={post.imageUrl}
+                username={post.username}
+                likes={post.likes}
+                isVerified={post.isVerified}
+                timestamp={post.timestamp}
+                displayMode={displayMode}
+            />
+        </div>
     );
 }
 

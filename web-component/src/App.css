@@ -1,0 +1,28 @@
+/* PostPreview App Container */
+.postpreview-app {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 470px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* Loading and Error States */
+.loading,
+.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: var(--text-secondary, #6b7280);
+}
+
+.error {
+    color: var(--error, #dc2626);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .postpreview-app {
+    color: #e5e7eb;
+}
