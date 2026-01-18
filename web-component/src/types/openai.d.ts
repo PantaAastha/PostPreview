@@ -68,12 +68,21 @@ export interface ValidationResult {
     message?: string;
 }
 
+export type CaptionEngagementLevel = 'optimal' | 'good' | 'long';
+
+export interface CaptionEngagement {
+    level: CaptionEngagementLevel;
+    label: string;
+    tip: string;
+}
+
 export interface InstagramValidation {
     caption: {
         charCount: number;
         maxChars: number;
         isValid: boolean;
         status: ValidationStatus;
+        engagement: CaptionEngagement;
     };
     hashtags: {
         count: number;

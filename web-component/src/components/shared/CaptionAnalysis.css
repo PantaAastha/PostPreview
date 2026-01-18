@@ -1,0 +1,135 @@
+.caption-analysis {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--surface, #f9fafb);
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+/* Engagement Badge */
+.engagement-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-weight: 500;
+    cursor: help;
+    position: relative;
+}
+
+/* Custom tooltip (more reliable than title attribute in sandboxed environments) */
+.engagement-badge::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip arrow */
+.engagement-badge::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1f2937;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 100;
+}
+
+.engagement-badge:hover::after,
+.engagement-badge:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Engagement level colors */
+.engagement-badge--optimal {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+}
+
+.engagement-badge--good {
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+}
+
+.engagement-badge--long {
+    background: rgba(202, 138, 4, 0.1);
+    color: #ca8a04;
+}
+
+.engagement-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.engagement-label {
+    font-size: 12px;
+}
+
+/* Content Breakdown */
+.content-breakdown {
+    display: flex;
+    gap: 12px;
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary, #6b7280);
+    cursor: help;
+}
+
+.breakdown-icon {
+    font-weight: 600;
+    color: var(--text-muted, #9ca3af);
+}
+
+.breakdown-value {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Dark mode */
+[data-theme="dark"] .caption-analysis {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .engagement-badge--optimal {
+    background: rgba(22, 163, 74, 0.2);
+}
+
+[data-theme="dark"] .engagement-badge--good {
+    background: rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="dark"] .engagement-badge--long {
+    background: rgba(202, 138, 4, 0.2);
+}
+
+[data-theme="dark"] .breakdown-item {
+    color: #9ca3af;
+}

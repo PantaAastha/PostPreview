@@ -1,6 +1,6 @@
 import { useOpenAI } from './hooks/useOpenAI';
 import { InstagramPreview } from './components/InstagramPreview/InstagramPreview';
-import { ValidationBar } from './components/shared/ValidationBar';
+import { ValidationBar, CaptionAnalysis } from './components/shared';
 import { validateInstagramCaption, INSTAGRAM_LIMITS } from './utils/validation';
 import type { InstagramPost } from './types/openai';
 import './App.css';
@@ -68,11 +68,14 @@ function App() {
 
     return (
         <div className="postpreview-app">
-            {/* Validation Bar - Above the preview */}
+            {/* Validation Bar - Limits check */}
             <ValidationBar
                 items={validationItems}
                 overallStatus={validation.overallStatus}
             />
+
+            {/* Caption Analysis - Engagement insights */}
+            <CaptionAnalysis validation={validation} />
 
             {/* Instagram Preview - Authentic look */}
             <InstagramPreview

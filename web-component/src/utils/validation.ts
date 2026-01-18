@@ -2,7 +2,7 @@
  * Instagram validation constants and utilities
  */
 
-import type { InstagramValidation, ValidationStatus } from '../types/openai';
+import type { InstagramValidation, ValidationStatus, CaptionEngagement } from '../types/openai';
 
 // Instagram platform limits
 export const INSTAGRAM_LIMITS = {
@@ -57,6 +57,32 @@ export function getStatus(
 }
 
 /**
+ * Get caption engagement analysis based on length
+ * Research shows 125-150 chars get the best engagement
+ */
+export function getCaptionEngagement(charCount: number): CaptionEngagement {
+    if (charCount <= INSTAGRAM_LIMITS.CAPTION_OPTIMAL_MAX) {
+        return {
+            level: 'optimal',
+            label: 'Optimal length',
+            tip: 'Short captions (under 150 chars) get the best engagement',
+        };
+    } else if (charCount <= 300) {
+        return {
+            level: 'good',
+            label: 'Good length',
+            tip: 'Your caption is a good length for engagement',
+        };
+    } else {
+        return {
+            level: 'long',
+            label: 'Long caption',
+            tip: 'Consider shortening for better engagement, or use line breaks',
+        };
+    }
+}
+
+/**
  * Validate an Instagram caption
  */
 export function validateInstagramCaption(caption: string): InstagramValidation {
@@ -71,6 +97,9 @@ export function validateInstagramCaption(caption: string): InstagramValidation {
         INSTAGRAM_LIMITS.CAPTION_MAX_CHARS,
         true
     );
+
+    // Caption engagement
+    const engagement = getCaptionEngagement(charCount);
 
     // Hashtag validation
     let hashtagStatus: ValidationStatus = 'valid';
@@ -95,6 +124,7 @@ export function validateInstagramCaption(caption: string): InstagramValidation {
             maxChars: INSTAGRAM_LIMITS.CAPTION_MAX_CHARS,
             isValid: charCount <= INSTAGRAM_LIMITS.CAPTION_MAX_CHARS,
             status: captionStatus,
+            engagement,
         },
         hashtags: {
             count: hashtags.length,
