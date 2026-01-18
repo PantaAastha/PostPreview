@@ -1,0 +1,14 @@
+.export-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--surface, #f9fafb);
+    border-radius: 8px;
+}
+
+/* Dark mode */
+[data-theme="dark"] .export-bar {
+    background: rgba(255, 255, 255, 0.05);
+}

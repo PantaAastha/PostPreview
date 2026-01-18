@@ -1,6 +1,6 @@
 import { useOpenAI } from './hooks/useOpenAI';
 import { InstagramPreview } from './components/InstagramPreview/InstagramPreview';
-import { ValidationBar, CaptionAnalysis } from './components/shared';
+import { ValidationBar, CaptionAnalysis, ExportBar } from './components/shared';
 import { validateInstagramCaption, INSTAGRAM_LIMITS } from './utils/validation';
 import type { InstagramPost } from './types/openai';
 import './App.css';
@@ -87,6 +87,9 @@ function App() {
                 timestamp={post.timestamp}
                 displayMode={displayMode}
             />
+
+            {/* Export Bar - Copy actions */}
+            <ExportBar caption={post.caption} />
         </div>
     );
 }
