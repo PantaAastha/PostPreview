@@ -45,10 +45,17 @@ function loadWidgetHtml(): string {
 
 const widgetHtml = loadWidgetHtml();
 
+// File param schema for uploaded images (per OpenAI Apps SDK)
+const fileParamSchema = z.object({
+    download_url: z.string().url(),
+    file_id: z.string(),
+});
+
 // Input schemas using Zod (as per OpenAI quickstart)
 const renderInstagramPostInputSchema = {
     caption: z.string().describe('The caption text for the Instagram post'),
     imageUrl: z.string().url().optional().describe('URL of the image to display in the post'),
+    image: fileParamSchema.optional().describe('Uploaded image file from ChatGPT'),
     username: z.string().optional().describe('The username to display on the post'),
     likes: z.number().optional().describe('Number of likes to display'),
     isVerified: z.boolean().optional().describe('Whether to show a verified badge'),
@@ -80,6 +87,18 @@ function createPostPreviewServer(): McpServer {
                     text: widgetHtml,
                     _meta: {
                         'openai/widgetPrefersBorder': true,
+                        // CSP to allow loading images from OpenAI's file storage
+                        // ChatGPT uses various CDN/storage domains for uploaded files
+                        'openai/widgetCSP': {
+                            resource_domains: [
+                                'https://persistent.oaistatic.com',
+                                'https://oaiusercontent.com',
+                                'https://c.oaiusercontent.com',
+                                'https://*.oaiusercontent.com',
+                                'https://*.blob.core.windows.net', // Azure blob storage
+                                'https://openaiusercontent.com',
+                            ],
+                        },
                     },
                 },
             ],
@@ -98,6 +117,8 @@ function createPostPreviewServer(): McpServer {
                 'openai/toolInvocation/invoking': 'Creating Instagram preview...',
                 'openai/toolInvocation/invoked': 'Preview ready!',
                 'openai/widgetAccessible': true,
+                // Declare which params are file uploads
+                'openai/fileParams': ['image'],
             },
             annotations: {
                 readOnlyHint: true,
@@ -106,13 +127,21 @@ function createPostPreviewServer(): McpServer {
             },
         },
         async (args) => {
+            // Handle both imageUrl (string) and image (file object with download_url)
+            const imageArg = args.image as { download_url: string; file_id: string } | undefined;
+            const resolvedImageUrl = imageArg?.download_url || (args.imageUrl as string | undefined);
+
             const input = {
                 caption: args.caption as string,
-                imageUrl: args.imageUrl as string | undefined,
+                imageUrl: resolvedImageUrl,
                 username: (args.username as string) || '@yourname',
                 likes: (args.likes as number) || 0,
                 isVerified: (args.isVerified as boolean) || false,
             };
+
+            if (imageArg) {
+                console.log('[Tool] Image file received:', imageArg.file_id);
+            }
 
             console.log('[Tool] render_instagram_post called with:', JSON.stringify(input, null, 2));
             const result: RenderInstagramPostOutput = renderInstagramPost(input);
