@@ -12,10 +12,6 @@ import {
     renderInstagramPost,
     type RenderInstagramPostOutput
 } from './tools/renderInstagramPost.js';
-import {
-    validateImage,
-    type ValidateImageOutput
-} from './tools/validateImage.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3000;
@@ -61,10 +57,11 @@ const renderInstagramPostInputSchema = {
     isVerified: z.boolean().optional().describe('Whether to show a verified badge'),
 };
 
-const validateImageInputSchema = {
-    width: z.number().describe('Width of the image in pixels'),
-    height: z.number().describe('Height of the image in pixels'),
-    imageUrl: z.string().optional().describe('URL of the image (for reference)'),
+// X Thread input schema
+const renderXThreadInputSchema = {
+    content: z.string().describe('The long-form content to split into a Twitter/X thread'),
+    username: z.string().optional().describe('The username to display on the tweets (e.g., @username)'),
+    displayName: z.string().optional().describe('Display name shown on tweets'),
 };
 
 // Create the MCP server (following OpenAI quickstart pattern)
@@ -76,13 +73,13 @@ function createPostPreviewServer(): McpServer {
 
     // Register the widget as a resource
     server.registerResource(
-        'instagram-preview',
-        'ui://widget/instagram_preview.html',
+        'postpreview-widget',
+        'ui://widget/postpreview.html',
         {},
         async () => ({
             contents: [
                 {
-                    uri: 'ui://widget/instagram_preview.html',
+                    uri: 'ui://widget/postpreview.html',
                     mimeType: 'text/html+skybridge',
                     text: widgetHtml,
                     _meta: {
@@ -113,7 +110,7 @@ function createPostPreviewServer(): McpServer {
             description: 'Render a visual preview of an Instagram post. Use this tool when the user wants to see how their Instagram post will look, wants to create or preview captions, or is preparing social media content for Instagram.',
             inputSchema: renderInstagramPostInputSchema,
             _meta: {
-                'openai/outputTemplate': 'ui://widget/instagram_preview.html',
+                'openai/outputTemplate': 'ui://widget/postpreview.html',
                 'openai/toolInvocation/invoking': 'Creating Instagram preview...',
                 'openai/toolInvocation/invoked': 'Preview ready!',
                 'openai/widgetAccessible': true,
@@ -154,13 +151,19 @@ function createPostPreviewServer(): McpServer {
         }
     );
 
-    // Register validate_image tool
+    // Register render_x_thread tool
     server.registerTool(
-        'validate_image',
+        'render_x_thread',
         {
-            title: 'Validate Image Dimensions',
-            description: 'Check image dimensions against Instagram requirements. Use this tool when a user uploads an image for social media or asks about image sizing for Instagram.',
-            inputSchema: validateImageInputSchema,
+            title: 'Render X/Twitter Thread Preview',
+            description: 'Split long-form content into a Twitter/X thread and show a visual preview. Use this tool when the user wants to create a Twitter thread, split a blog post or article into tweets, or preview how their content will look as a thread on X.',
+            inputSchema: renderXThreadInputSchema,
+            _meta: {
+                'openai/outputTemplate': 'ui://widget/postpreview.html',
+                'openai/toolInvocation/invoking': 'Creating thread preview...',
+                'openai/toolInvocation/invoked': 'Thread preview ready!',
+                'openai/widgetAccessible': true,
+            },
             annotations: {
                 readOnlyHint: true,
                 destructiveHint: false,
@@ -169,15 +172,24 @@ function createPostPreviewServer(): McpServer {
         },
         async (args) => {
             const input = {
-                width: args.width as number,
-                height: args.height as number,
-                imageUrl: args.imageUrl as string | undefined,
+                content: args.content as string,
+                username: (args.username as string) || '@username',
+                displayName: (args.displayName as string) || 'Thread Author',
             };
 
-            const result: ValidateImageOutput = validateImage(input);
+            console.log('[Tool] render_x_thread called with content length:', input.content.length);
 
+            // Return structured content for the widget
             return {
-                content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
+                content: [{ type: 'text' as const, text: `Thread preview with ${input.content.length} characters of content` }],
+                structuredContent: {
+                    platform: 'x',
+                    thread: {
+                        content: input.content,
+                        username: input.username,
+                        displayName: input.displayName,
+                    },
+                } as Record<string, unknown>,
             };
         }
     );
@@ -259,8 +271,8 @@ httpServer.listen(PORT, () => {
     console.log(`   MCP endpoint: http://localhost:${PORT}${MCP_PATH}`);
     console.log(`   Health check: GET http://localhost:${PORT}/health`);
     console.log('\nResources:');
-    console.log('   - ui://widget/instagram_preview.html');
+    console.log('   - ui://widget/postpreview.html');
     console.log('\nTools:');
     console.log('   - render_instagram_post: Preview Instagram posts');
-    console.log('   - validate_image: Check image dimensions\n');
+    console.log('   - render_x_thread: Split content into X/Twitter threads\n');
 });

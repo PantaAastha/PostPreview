@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { TweetCard } from './TweetCard';
-import { splitIntoThread, analyzeHook, type ThreadSplitResult } from '../../utils/threadSplitter';
+import { splitIntoThread, analyzeHook, copyToClipboard, type ThreadSplitResult } from '../../utils';
 import './XThreadPreview.css';
 
 interface XThreadPreviewProps {
@@ -28,15 +28,15 @@ export function XThreadPreview({
     // Analyze hook
     const hookAnalysis = totalTweets > 0 ? analyzeHook(tweets[0].text) : null;
 
-    const handleCopyTweet = useCallback((text: string) => {
-        navigator.clipboard.writeText(text);
+    const handleCopyTweet = useCallback(async (text: string) => {
+        await copyToClipboard(text);
     }, []);
 
-    const handleCopyAll = useCallback(() => {
+    const handleCopyAll = useCallback(async () => {
         const fullThread = tweets
             .map(t => t.text.replace(/ \d+\/\d+$/, ''))
             .join('\n\n---\n\n');
-        navigator.clipboard.writeText(fullThread);
+        await copyToClipboard(fullThread);
         setThreadCopied(true);
         setTimeout(() => setThreadCopied(false), 2000);
     }, [tweets]);
@@ -76,7 +76,7 @@ export function XThreadPreview({
                     onClick={handleCopyAll}
                     type="button"
                 >
-                    {threadCopied ? '✓ Copied!' : 'Copy Thread'}
+                    {threadCopied ? '✓ Copied!' : (totalTweets === 1 ? 'Copy' : 'Copy Thread')}
                 </button>
             </div>
 

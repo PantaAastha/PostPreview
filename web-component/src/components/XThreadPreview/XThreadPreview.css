@@ -105,13 +105,16 @@
 /* Empty state */
 .x-thread-empty {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     padding: 48px 24px;
     background: #f7f9f9;
     border-radius: 16px;
     color: #536471;
     font-size: 15px;
+    text-align: center;
 }
 
 /* Fullscreen mode */

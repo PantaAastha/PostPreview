@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Tweet } from '../../utils/threadSplitter';
-import { X_LIMITS } from '../../utils/validation';
+import { X_LIMITS, copyToClipboard } from '../../utils';
 import './TweetCard.css';
 
 interface TweetCardProps {
@@ -32,14 +32,17 @@ export function TweetCard({
         return '#1d9bf0'; // X blue
     };
 
-    const handleCopy = () => {
+    const handleCopy = async () => {
+        // Remove the numbering for individual copy
+        const textWithoutNumbering = tweet.text.replace(/ \d+\/\d+$/, '');
+
+        // Use shared copy function, but also call onCopy callback if provided
+        await copyToClipboard(textWithoutNumbering);
         if (onCopy) {
-            // Remove the numbering for individual copy
-            const textWithoutNumbering = tweet.text.replace(/ \d+\/\d+$/, '');
             onCopy(textWithoutNumbering);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
         }
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     return (

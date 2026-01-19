@@ -45,6 +45,28 @@ function getInstagramPost(toolOutput: unknown): InstagramPost | null {
 }
 
 /**
+ * Helper to extract X thread content from tool output
+ */
+interface XThreadData {
+    content: string;
+    username?: string;
+    displayName?: string;
+}
+
+function getXThread(toolOutput: unknown): XThreadData | null {
+    if (!toolOutput || typeof toolOutput !== 'object') return null;
+
+    const output = toolOutput as Record<string, unknown>;
+
+    // Format: { platform: 'x', thread: {...} }
+    if (output.platform === 'x' && output.thread) {
+        return output.thread as XThreadData;
+    }
+
+    return null;
+}
+
+/**
  * Instagram content view with validation and export
  */
 function InstagramContent({ post, displayMode }: { post: InstagramPost; displayMode: string }) {
@@ -89,9 +111,25 @@ function InstagramContent({ post, displayMode }: { post: InstagramPost; displayM
 /**
  * X Thread content view
  */
-function XThreadContent({ displayMode }: { displayMode: string }) {
-    // Demo content for testing - in real use, this comes from MCP tool
-    const demoContent = `This is a demo thread to show how the X Thread Builder works!
+function XThreadContent({ thread, displayMode }: { thread: XThreadData | null; displayMode: string }) {
+    // If no thread data from tool, show appropriate message
+    if (!thread) {
+        // Check if we're in ChatGPT (window.openai exists) or local dev
+        const isInChatGPT = !!window.openai;
+
+        if (isInChatGPT) {
+            // In ChatGPT without thread data - show prompt to use tool
+            return (
+                <div className="x-thread-empty">
+                    <span className="coming-soon-icon">🧵</span>
+                    <p>Ask me to create a thread from your content!</p>
+                    <p className="coming-soon-hint">Try: "Turn this into a Twitter thread"</p>
+                </div>
+            );
+        }
+
+        // Local dev - show demo
+        const demoContent = `This is a demo thread to show how the X Thread Builder works!
 
 The algorithm automatically splits your long text into tweet-sized chunks. It prioritizes natural breaking points like paragraphs, sentences, and clauses.
 
@@ -102,11 +140,21 @@ Here's what makes it smart:
 
 Try pasting your own content to see it in action. The thread builder will help you craft engaging Twitter threads that capture attention. 🧵`;
 
+        return (
+            <XThreadPreview
+                content={demoContent}
+                username="@postpreview"
+                displayName="PostPreview"
+                displayMode={displayMode as 'compact' | 'fullscreen'}
+            />
+        );
+    }
+
     return (
         <XThreadPreview
-            content={demoContent}
-            username="@postpreview"
-            displayName="PostPreview"
+            content={thread.content}
+            username={thread.username || '@postpreview'}
+            displayName={thread.displayName || 'PostPreview'}
             displayMode={displayMode as 'compact' | 'fullscreen'}
         />
     );
@@ -122,7 +170,8 @@ function App() {
 
     // Detect platform from tool output (takes precedence over widget state)
     const detectedPlatform = detectPlatform(toolOutput);
-    const currentPlatform = detectedPlatform || widgetState.activePlatform;
+    // Null-safe access to widgetState.activePlatform with fallback
+    const currentPlatform = detectedPlatform || widgetState?.activePlatform || 'instagram';
 
     // Platform change handler
     const handlePlatformChange = (platform: PlatformType) => {
@@ -139,6 +188,7 @@ function App() {
 
     // Get content based on platform
     const instagramPost = getInstagramPost(toolOutput);
+    const xThread = getXThread(toolOutput);
 
     return (
         <div className="postpreview-app">
@@ -155,13 +205,15 @@ function App() {
             )}
 
             {currentPlatform === 'instagram' && !instagramPost && (
-                <div className="error">
-                    <p>No Instagram post data available</p>
+                <div className="x-thread-empty">
+                    <span className="coming-soon-icon">📸</span>
+                    <p>Ask me to create an Instagram post!</p>
+                    <p className="coming-soon-hint">Try: "Create an Instagram caption for..."</p>
                 </div>
             )}
 
             {currentPlatform === 'x' && (
-                <XThreadContent displayMode={displayMode} />
+                <XThreadContent thread={xThread} displayMode={displayMode} />
             )}
         </div>
     );
