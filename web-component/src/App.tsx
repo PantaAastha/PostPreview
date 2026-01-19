@@ -36,6 +36,11 @@ function getInstagramPost(toolOutput: unknown): InstagramPost | null {
         return output.post as InstagramPost;
     }
 
+    // Combined format: { platform: 'both', post: {...}, thread: {...} }
+    if (output.platform === 'both' && output.post) {
+        return output.post as InstagramPost;
+    }
+
     // Legacy format: { post: {...} }
     if (output.post && typeof output.post === 'object') {
         return output.post as InstagramPost;
@@ -60,6 +65,11 @@ function getXThread(toolOutput: unknown): XThreadData | null {
 
     // Format: { platform: 'x', thread: {...} }
     if (output.platform === 'x' && output.thread) {
+        return output.thread as XThreadData;
+    }
+
+    // Combined format: { platform: 'both', post: {...}, thread: {...} }
+    if (output.platform === 'both' && output.thread) {
         return output.thread as XThreadData;
     }
 
@@ -190,30 +200,55 @@ function App() {
     const instagramPost = getInstagramPost(toolOutput);
     const xThread = getXThread(toolOutput);
 
+    // Determine if we have multiple platforms (only then show tabs)
+    const hasMultiplePlatforms = !!instagramPost && !!xThread;
+
     return (
         <div className="postpreview-app">
-            {/* Platform Toggle */}
-            <PlatformSelector
-                currentPlatform={currentPlatform}
-                onPlatformChange={handlePlatformChange}
-                disabled={!!detectedPlatform} // Disable if platform is from tool output
-            />
+            {/* Platform Toggle - only show when both platforms have data */}
+            {hasMultiplePlatforms && (
+                <PlatformSelector
+                    currentPlatform={currentPlatform}
+                    onPlatformChange={handlePlatformChange}
+                    disabled={false}
+                />
+            )}
 
-            {/* Platform-specific content */}
-            {currentPlatform === 'instagram' && instagramPost && (
+            {/* Single platform: Instagram only */}
+            {!hasMultiplePlatforms && instagramPost && (
+                <>
+                    <InstagramContent post={instagramPost} displayMode={displayMode} />
+                    <div className="cross-platform-prompt">
+                        🧵 Want to see this as a thread too? Just ask.
+                    </div>
+                </>
+            )}
+
+            {/* Single platform: X thread only */}
+            {!hasMultiplePlatforms && xThread && (
+                <>
+                    <XThreadContent thread={xThread} displayMode={displayMode} />
+                    <div className="cross-platform-prompt">
+                        📸 Want to see this as an Instagram post too? Just ask.
+                    </div>
+                </>
+            )}
+
+            {/* Multi-platform: Show based on selected tab */}
+            {hasMultiplePlatforms && currentPlatform === 'instagram' && (
                 <InstagramContent post={instagramPost} displayMode={displayMode} />
             )}
-
-            {currentPlatform === 'instagram' && !instagramPost && (
-                <div className="x-thread-empty">
-                    <span className="coming-soon-icon">📸</span>
-                    <p>Ask me to create an Instagram post!</p>
-                    <p className="coming-soon-hint">Try: "Create an Instagram caption for..."</p>
-                </div>
+            {hasMultiplePlatforms && currentPlatform === 'x' && (
+                <XThreadContent thread={xThread} displayMode={displayMode} />
             )}
 
-            {currentPlatform === 'x' && (
-                <XThreadContent thread={xThread} displayMode={displayMode} />
+            {/* No data at all - empty state */}
+            {!instagramPost && !xThread && (
+                <div className="x-thread-empty">
+                    <span className="coming-soon-icon">✨</span>
+                    <p>PostPreview is ready!</p>
+                    <p className="coming-soon-hint">Ask me to create an Instagram post or Twitter thread.</p>
+                </div>
             )}
         </div>
     );

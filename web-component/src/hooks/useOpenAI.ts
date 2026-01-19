@@ -28,10 +28,7 @@ export function useOpenAI(): UseOpenAIResult {
 
         if (openai) {
             // Running inside ChatGPT - get initial data
-            console.log('[PostPreview] Running inside ChatGPT');
-
             if (openai.toolOutput) {
-                console.log('[PostPreview] Initial toolOutput:', openai.toolOutput);
                 setToolOutput(openai.toolOutput);
             }
             if (openai.theme) {
@@ -43,7 +40,6 @@ export function useOpenAI(): UseOpenAIResult {
             setIsLoaded(true);
         } else {
             // Running in dev mode - use mock data
-            console.log('[PostPreview] Running in dev mode with mock data');
             setToolOutput({
                 success: true,
                 post: {
@@ -64,7 +60,6 @@ export function useOpenAI(): UseOpenAIResult {
     useEffect(() => {
         const handleSetGlobals = (event: CustomEvent) => {
             const globals = event.detail?.globals;
-            console.log('[PostPreview] Received openai:set_globals event:', globals);
 
             if (globals?.toolOutput) {
                 setToolOutput(globals.toolOutput);

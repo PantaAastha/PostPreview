@@ -26,7 +26,6 @@ function loadWidgetHtml(): string {
     if (existsSync(jsPath) && existsSync(cssPath)) {
         const js = readFileSync(jsPath, 'utf-8');
         const css = readFileSync(cssPath, 'utf-8');
-        console.log('[Widget] Loading inlined assets from dist/');
         return `
 <div id="root"></div>
 <style>${css}</style>
@@ -62,6 +61,16 @@ const renderXThreadInputSchema = {
     content: z.string().describe('The long-form content to split into a Twitter/X thread'),
     username: z.string().optional().describe('The username to display on the tweets (e.g., @username)'),
     displayName: z.string().optional().describe('Display name shown on tweets'),
+};
+
+// Multiplatform input schema (both Instagram + X thread)
+const renderMultiplatformInputSchema = {
+    caption: z.string().describe('The caption text for the Instagram post'),
+    imageUrl: z.string().url().optional().describe('URL of the image to display'),
+    image: fileParamSchema.optional().describe('Uploaded image file from ChatGPT'),
+    threadContent: z.string().optional().describe('Long-form content for X thread (if different from caption). If not provided, caption will be used.'),
+    username: z.string().optional().describe('Username to display on both platforms'),
+    displayName: z.string().optional().describe('Display name shown on posts'),
 };
 
 // Create the MCP server (following OpenAI quickstart pattern)
@@ -137,12 +146,10 @@ function createPostPreviewServer(): McpServer {
             };
 
             if (imageArg) {
-                console.log('[Tool] Image file received:', imageArg.file_id);
+                // Image file received from ChatGPT
             }
 
-            console.log('[Tool] render_instagram_post called with:', JSON.stringify(input, null, 2));
             const result: RenderInstagramPostOutput = renderInstagramPost(input);
-            console.log('[Tool] Returning structuredContent:', JSON.stringify(result, null, 2));
 
             return {
                 content: [{ type: 'text' as const, text: 'Rendered Instagram post preview!' }],
@@ -177,8 +184,6 @@ function createPostPreviewServer(): McpServer {
                 displayName: (args.displayName as string) || 'Thread Author',
             };
 
-            console.log('[Tool] render_x_thread called with content length:', input.content.length);
-
             // Return structured content for the widget
             return {
                 content: [{ type: 'text' as const, text: `Thread preview with ${input.content.length} characters of content` }],
@@ -188,6 +193,56 @@ function createPostPreviewServer(): McpServer {
                         content: input.content,
                         username: input.username,
                         displayName: input.displayName,
+                    },
+                } as Record<string, unknown>,
+            };
+        }
+    );
+
+    // Register render_multiplatform_post tool (combined Instagram + X thread)
+    server.registerTool(
+        'render_multiplatform_post',
+        {
+            title: 'Render Both Instagram Post and X Thread Preview',
+            description: 'Create BOTH an Instagram post AND a Twitter/X thread from content and show them in a single widget with tabs. Use this tool when the user wants previews for MULTIPLE platforms at once (e.g., "create an Instagram post and Twitter thread").',
+            inputSchema: renderMultiplatformInputSchema,
+            _meta: {
+                'openai/outputTemplate': 'ui://widget/postpreview.html',
+                'openai/toolInvocation/invoking': 'Creating multi-platform preview...',
+                'openai/toolInvocation/invoked': 'Multi-platform preview ready!',
+                'openai/widgetAccessible': true,
+                'openai/fileParams': ['image'],
+            },
+            annotations: {
+                readOnlyHint: true,
+                destructiveHint: false,
+                openWorldHint: false,
+            },
+        },
+        async (args) => {
+            const imageArg = args.image as { download_url: string; file_id: string } | undefined;
+            const resolvedImageUrl = imageArg?.download_url || (args.imageUrl as string | undefined);
+
+            const caption = args.caption as string;
+            const threadContent = (args.threadContent as string) || caption;
+            const username = (args.username as string) || '@username';
+            const displayName = (args.displayName as string) || 'Preview';
+
+            return {
+                content: [{ type: 'text' as const, text: 'Multi-platform preview created!' }],
+                structuredContent: {
+                    platform: 'both',
+                    post: {
+                        caption: caption,
+                        imageUrl: resolvedImageUrl,
+                        username: username,
+                        likes: 0,
+                        isVerified: false,
+                    },
+                    thread: {
+                        content: threadContent,
+                        username: username,
+                        displayName: displayName,
                     },
                 } as Record<string, unknown>,
             };
@@ -236,8 +291,6 @@ const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id');
 
-        console.log(`\n[MCP] ${req.method} ${MCP_PATH}`);
-
         // Create a new server instance for each request (stateless mode)
         const server = createPostPreviewServer();
         const transport = new StreamableHTTPServerTransport({
@@ -274,5 +327,6 @@ httpServer.listen(PORT, () => {
     console.log('   - ui://widget/postpreview.html');
     console.log('\nTools:');
     console.log('   - render_instagram_post: Preview Instagram posts');
-    console.log('   - render_x_thread: Split content into X/Twitter threads\n');
+    console.log('   - render_x_thread: Split content into X/Twitter threads');
+    console.log('   - render_multiplatform_post: Preview both Instagram + X thread\n');
 });
