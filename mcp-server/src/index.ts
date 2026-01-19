@@ -249,6 +249,73 @@ function createPostPreviewServer(): McpServer {
         }
     );
 
+    // Register prompts for user guidance when app is selected
+    server.registerPrompt(
+        'instagram_preview',
+        {
+            title: 'Create Instagram Post',
+            description: 'Generate an Instagram caption with preview',
+            argsSchema: {
+                content: z.string().describe('Describe your photo or topic for the Instagram post'),
+            },
+        },
+        async (args) => ({
+            messages: [
+                {
+                    role: 'user',
+                    content: {
+                        type: 'text',
+                        text: `Create an Instagram caption for: ${args.content}`,
+                    },
+                },
+            ],
+        })
+    );
+
+    server.registerPrompt(
+        'x_thread',
+        {
+            title: 'Create Twitter Thread',
+            description: 'Turn content into a Twitter/X thread with preview',
+            argsSchema: {
+                content: z.string().describe('The content to turn into a thread'),
+            },
+        },
+        async (args) => ({
+            messages: [
+                {
+                    role: 'user',
+                    content: {
+                        type: 'text',
+                        text: `Turn this into a Twitter thread: ${args.content}`,
+                    },
+                },
+            ],
+        })
+    );
+
+    server.registerPrompt(
+        'multiplatform',
+        {
+            title: 'Create for Both Platforms',
+            description: 'Create Instagram post AND Twitter thread together',
+            argsSchema: {
+                content: z.string().describe('Content for both platforms'),
+            },
+        },
+        async (args) => ({
+            messages: [
+                {
+                    role: 'user',
+                    content: {
+                        type: 'text',
+                        text: `Create both an Instagram post AND Twitter thread for: ${args.content}`,
+                    },
+                },
+            ],
+        })
+    );
+
     return server;
 }
 
@@ -328,5 +395,9 @@ httpServer.listen(PORT, () => {
     console.log('\nTools:');
     console.log('   - render_instagram_post: Preview Instagram posts');
     console.log('   - render_x_thread: Split content into X/Twitter threads');
-    console.log('   - render_multiplatform_post: Preview both Instagram + X thread\n');
+    console.log('   - render_multiplatform_post: Preview both Instagram + X thread');
+    console.log('\nPrompts:');
+    console.log('   - instagram_preview: Create Instagram Post');
+    console.log('   - x_thread: Create Twitter Thread');
+    console.log('   - multiplatform: Create for Both Platforms\n');
 });
