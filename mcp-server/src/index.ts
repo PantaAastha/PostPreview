@@ -116,7 +116,7 @@ function createPostPreviewServer(): McpServer {
         'render_instagram_post',
         {
             title: 'Preview Instagram Post',
-            description: 'Use this when the user wants to preview how their Instagram post will look, create or validate captions, check hashtag counts, or validate image dimensions before posting. Shows a realistic Instagram-style preview with validation. Do not use for scheduling, publishing, or actually posting to Instagram. Do not use for general questions about Instagram marketing.',
+            description: 'Use this when the user wants to create, write, or preview an Instagram post or caption. Use for ANY Instagram content request including: writing captions, generating hashtags, previewing posts, creating content for Instagram, or when user mentions "Instagram" with content intent. Shows a realistic preview with validation. Do not use for scheduling or actually posting to Instagram.',
             inputSchema: renderInstagramPostInputSchema,
             _meta: {
                 'openai/outputTemplate': 'ui://widget/postpreview.html',
@@ -163,7 +163,7 @@ function createPostPreviewServer(): McpServer {
         'render_x_thread',
         {
             title: 'Preview Twitter/X Thread',
-            description: 'Use this when the user wants to split long-form content into a Twitter/X thread, convert a blog post or article into tweets, or preview how their content will look as a thread. Shows tweet count, character validation, and hook analysis. Do not use for scheduling or actually posting to Twitter/X. Do not use for general questions about Twitter strategy.',
+            description: 'Use this when the user wants to create, write, or preview Twitter/X content. Use for ANY Twitter content request including: creating threads, splitting long content into tweets, writing tweets, or when user mentions \"Twitter\", \"X\", \"thread\", or \"tweet\" with content intent. Shows tweet count and character validation. Do not use for scheduling or actually posting to Twitter/X.',
             inputSchema: renderXThreadInputSchema,
             _meta: {
                 'openai/outputTemplate': 'ui://widget/postpreview.html',
@@ -253,10 +253,10 @@ function createPostPreviewServer(): McpServer {
     server.registerPrompt(
         'instagram_preview',
         {
-            title: 'Create Instagram Post',
-            description: 'Generate an Instagram caption with preview',
+            title: 'Create an Instagram caption for my photo',
+            description: 'Generate engaging captions with hashtags, see a realistic preview, and validate character limits',
             argsSchema: {
-                content: z.string().describe('Describe your photo or topic for the Instagram post'),
+                content: z.string().describe('Describe your photo or what you want to post about'),
             },
         },
         async (args) => ({
@@ -275,10 +275,10 @@ function createPostPreviewServer(): McpServer {
     server.registerPrompt(
         'x_thread',
         {
-            title: 'Create Twitter Thread',
-            description: 'Turn content into a Twitter/X thread with preview',
+            title: 'Turn my blog post into a Twitter thread',
+            description: 'Convert long-form content into tweet-sized chunks with character validation and copy buttons',
             argsSchema: {
-                content: z.string().describe('The content to turn into a thread'),
+                content: z.string().describe('Paste your article, blog post, or long-form content'),
             },
         },
         async (args) => ({
@@ -297,10 +297,10 @@ function createPostPreviewServer(): McpServer {
     server.registerPrompt(
         'multiplatform',
         {
-            title: 'Create for Both Platforms',
-            description: 'Create Instagram post AND Twitter thread together',
+            title: 'Create for Instagram and Twitter at once',
+            description: 'Generate content for both platforms with a tabbed preview to compare and copy',
             argsSchema: {
-                content: z.string().describe('Content for both platforms'),
+                content: z.string().describe('What do you want to share on both platforms?'),
             },
         },
         async (args) => ({

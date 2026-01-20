@@ -1,87 +1,131 @@
 # PostPreview
 
-A ChatGPT-native app for previewing social media posts before publishing.
+**A ChatGPT-native app for previewing social media posts before publishing.**
 
-## Features
+Preview Instagram posts and Twitter/X threads directly in ChatGPT with realistic mockups, validation, and copy functionality.
 
-- **Instagram Post Preview**: See how your post will look on Instagram
-- **Image Dimension Validation**: Check if your images meet platform requirements
-- **Content Generation Support**: Works with ChatGPT-generated captions
+![PostPreview](https://img.shields.io/badge/ChatGPT-App-00a67e?style=flat-square&logo=openai)
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
-## Project Structure
+---
 
-```
-PostPreview/
-├── mcp-server/          # MCP Server (Node.js + TypeScript)
-│   └── src/
-│       ├── index.ts     # Server entry point
-│       └── tools/       # MCP tool implementations
-├── web-component/       # React Widget
-│   └── src/
-│       ├── components/  # UI components
-│       └── hooks/       # Apps SDK integration
-└── package.json         # Root workspace config
-```
+## ✨ Features
 
-## Quick Start
+### Instagram Preview
+- 📸 Realistic Instagram post mockup
+- ✅ Caption validation (character limits, engagement tips)
+- #️⃣ Hashtag counter and optimization
+- 🖼️ Image dimension/aspect ratio validation
+- 📋 One-click copy (with or without hashtags)
 
-### 1. Install Dependencies
+### Twitter/X Thread Preview
+- 🧵 Auto-split long content into threads
+- 📊 Character count per tweet
+- 🎯 Hook quality analysis
+- ⚠️ Thread validation and warnings
+- 📋 Copy thread or individual tweets
+
+### Multi-Platform
+- 🔄 Tabbed preview for both platforms at once
+- 🎨 Light/Dark mode support
+- 📱 Responsive compact/fullscreen modes
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- ChatGPT Plus with Developer Mode enabled
+- ngrok (for local testing)
+
+### Installation
 
 ```bash
-# Install all dependencies
+# Clone the repository
+git clone https://github.com/PantaAastha/PostPreview.git
+cd PostPreview
+
+# Install dependencies
 npm install
 cd mcp-server && npm install
 cd ../web-component && npm install
 cd ..
 ```
 
-### 2. Run in Development Mode
+### Development
 
 ```bash
-# Terminal 1: Start the React dev server
-cd web-component && npm run dev
+# Terminal 1: Build and watch web component
+cd web-component && npm run build
 
-# Terminal 2: Start the MCP server
-cd mcp-server && npm run dev
+# Terminal 2: Start MCP server
+cd mcp-server && npm run build && npm start
 ```
 
-### 3. Test in ChatGPT
+### Connect to ChatGPT
 
-1. Expose MCP server via ngrok:
+1. **Expose your server:**
    ```bash
    ngrok http 3000
    ```
 
-2. In ChatGPT (with Developer Mode enabled):
-   - Go to Settings → Apps & Connectors → Connectors
-   - Click "Create" and paste your ngrok URL + `/mcp`
+2. **In ChatGPT:**
+   - Go to **Settings → Apps & Connectors → Connectors**
+   - Click **Create** → paste `https://your-ngrok-url.ngrok.io/mcp`
    - Start a new chat and add your connector
 
-3. Try prompts like:
-   - "Write me an Instagram caption about launching a coffee shop"
-   - "Preview this Instagram post: [your caption]"
+3. **Try it:**
+   - "Create an Instagram caption for my coffee photo"
+   - "Turn this into a Twitter thread: [your content]"
+   - "Create for both Instagram and Twitter"
 
-## MCP Tools
+---
+
+## 🛠️ MCP Tools
 
 | Tool | Description |
 |------|-------------|
-| `render_instagram_post` | Render a visual Instagram post preview |
-| `validate_image` | Check image dimensions against IG requirements |
+| `render_instagram_post` | Preview Instagram posts with validation |
+| `render_x_thread` | Convert content to Twitter thread with preview |
+| `render_multiplatform_post` | Preview for both platforms with tabs |
 
-## Development
+---
 
-### Building for Production
+## 📁 Project Structure
 
-```bash
-npm run build
+```
+PostPreview/
+├── mcp-server/           # MCP Server (Node.js + TypeScript)
+│   └── src/
+│       └── index.ts      # Server, tools, and prompts
+├── web-component/        # React Widget
+│   └── src/
+│       ├── components/   # UI components (InstagramPreview, XThreadPreview)
+│       ├── hooks/        # OpenAI Apps SDK integration
+│       └── utils/        # Validation, thread splitting
+├── TEST_PROMPTS.md       # Golden prompt set for testing
+└── README.md
 ```
 
-### Serving Built Assets
+---
 
-```bash
-npm run serve
-```
+## 🧪 Testing
 
-## License
+See [TEST_PROMPTS.md](./TEST_PROMPTS.md) for the complete testing guide including:
+- Direct prompts (explicitly mention PostPreview)
+- Indirect prompts (describe desired outcome)
+- Negative prompts (should NOT trigger tool)
 
-MIT
+---
+
+## ⚠️ Known Limitations
+
+- **Widget State Persistence**: When multiple widgets are created in one conversation, older widgets may lose their data. This is a ChatGPT platform limitation.
+- **MCP Prompts**: Starter prompts may not appear in developer mode connectors (works in published apps).
+
+---
+
+## 📄 License
+
+MIT © [Aastha Panta](https://github.com/PantaAastha)
