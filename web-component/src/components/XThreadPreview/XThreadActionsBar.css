@@ -1,0 +1,64 @@
+.x-actions-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 0;
+    margin-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.x-actions-bar-btn {
+    flex: 1;
+    padding: 10px 16px;
+    background: #0f1419;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.x-actions-bar-btn:hover {
+    background: #2f3336;
+}
+
+.x-actions-bar-btn--secondary {
+    background: transparent;
+    color: #0f1419;
+    border: 1px solid #cfd9de;
+}
+
+.x-actions-bar-btn--secondary:hover {
+    background: #f7f9f9;
+}
+
+.x-actions-bar-btn--copied {
+    background: #16a34a !important;
+    color: white !important;
+    border-color: #16a34a !important;
+}
+
+/* Dark mode */
+[data-theme="dark"] .x-actions-bar {
+    border-color: #2f3336;
+}
+
+[data-theme="dark"] .x-actions-bar-btn {
+    background: #e7e9ea;
+    color: #0f1419;
+}
+
+[data-theme="dark"] .x-actions-bar-btn:hover {
+    background: #d1d5db;
+}
+
+[data-theme="dark"] .x-actions-bar-btn--secondary {
+    background: transparent;
+    color: #e7e9ea;
+    border-color: #536471;
+}
+
+[data-theme="dark"] .x-actions-bar-btn--secondary:hover {
+    background: #16181c;
+}

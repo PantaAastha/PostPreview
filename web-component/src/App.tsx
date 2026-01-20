@@ -1,8 +1,8 @@
 import { useOpenAI } from './hooks/useOpenAI';
 import { useWidgetState } from './hooks/useWidgetState';
 import { InstagramPreview } from './components/InstagramPreview/InstagramPreview';
-import { XThreadPreview } from './components/XThreadPreview';
-import { ValidationBar, ExportBar, PlatformSelector } from './components/shared';
+import { XThreadPreview, XThreadIssuesPanel, XThreadValidationBar, XThreadActionsBar } from './components/XThreadPreview';
+import { ValidationBar, IssuesPanel, ActionsBar, PlatformSelector } from './components/shared';
 import { validateInstagramCaption, INSTAGRAM_LIMITS } from './utils/validation';
 import type { InstagramPost, PlatformType, PostPreviewWidgetState } from './types/openai';
 import './App.css';
@@ -78,6 +78,7 @@ function getXThread(toolOutput: unknown): XThreadData | null {
 
 /**
  * Instagram content view with validation and export
+ * New layout: Issues → Metrics → Preview → Actions
  */
 function InstagramContent({ post, displayMode }: { post: InstagramPost; displayMode: string }) {
     const validation = validateInstagramCaption(post.caption);
@@ -99,11 +100,31 @@ function InstagramContent({ post, displayMode }: { post: InstagramPost; displayM
 
     return (
         <>
+            {/* 1. Issues Panel at top */}
+            <IssuesPanel
+                imageUrl={post.imageUrl}
+                captionStatus={validation.caption.status}
+                captionMessage={
+                    validation.caption.status !== 'valid'
+                        ? `Caption is ${validation.caption.charCount}/${validation.caption.maxChars} characters`
+                        : undefined
+                }
+                hashtagStatus={validation.hashtags.status}
+                hashtagMessage={
+                    validation.hashtags.status !== 'valid'
+                        ? `${validation.hashtags.count} hashtags (optimal: 3-5)`
+                        : undefined
+                }
+            />
+
+            {/* 2. Metrics bar */}
             <ValidationBar
                 items={validationItems}
                 overallStatus={validation.overallStatus}
                 engagement={validation.caption.engagement}
             />
+
+            {/* 3. Instagram Preview */}
             <InstagramPreview
                 caption={post.caption}
                 imageUrl={post.imageUrl}
@@ -113,13 +134,16 @@ function InstagramContent({ post, displayMode }: { post: InstagramPost; displayM
                 timestamp={post.timestamp}
                 displayMode={displayMode as 'compact' | 'fullscreen'}
             />
-            <ExportBar caption={post.caption} />
+
+            {/* 4. Actions at bottom */}
+            <ActionsBar caption={post.caption} />
         </>
     );
 }
 
 /**
  * X Thread content view
+ * New layout: Issues → Metrics → Preview → Actions
  */
 function XThreadContent({ thread, displayMode }: { thread: XThreadData | null; displayMode: string }) {
     // If no thread data from tool, show appropriate message
@@ -151,22 +175,46 @@ Here's what makes it smart:
 Try pasting your own content to see it in action. The thread builder will help you craft engaging Twitter threads that capture attention. 🧵`;
 
         return (
-            <XThreadPreview
-                content={demoContent}
-                username="@postpreview"
-                displayName="PostPreview"
-                displayMode={displayMode as 'compact' | 'fullscreen'}
-            />
+            <>
+                {/* 1. Issues Panel at top */}
+                <XThreadIssuesPanel content={demoContent} />
+
+                {/* 2. Metrics bar */}
+                <XThreadValidationBar content={demoContent} />
+
+                {/* 3. X Thread Preview */}
+                <XThreadPreview
+                    content={demoContent}
+                    username="@postpreview"
+                    displayName="PostPreview"
+                    displayMode={displayMode as 'compact' | 'fullscreen'}
+                />
+
+                {/* 4. Actions at bottom */}
+                <XThreadActionsBar content={demoContent} />
+            </>
         );
     }
 
     return (
-        <XThreadPreview
-            content={thread.content}
-            username={thread.username || '@postpreview'}
-            displayName={thread.displayName || 'PostPreview'}
-            displayMode={displayMode as 'compact' | 'fullscreen'}
-        />
+        <>
+            {/* 1. Issues Panel at top */}
+            <XThreadIssuesPanel content={thread.content} />
+
+            {/* 2. Metrics bar */}
+            <XThreadValidationBar content={thread.content} />
+
+            {/* 3. X Thread Preview */}
+            <XThreadPreview
+                content={thread.content}
+                username={thread.username || '@postpreview'}
+                displayName={thread.displayName || 'PostPreview'}
+                displayMode={displayMode as 'compact' | 'fullscreen'}
+            />
+
+            {/* 4. Actions at bottom */}
+            <XThreadActionsBar content={thread.content} />
+        </>
     );
 }
 
@@ -219,7 +267,7 @@ function App() {
                 <>
                     <InstagramContent post={instagramPost} displayMode={displayMode} />
                     <div className="cross-platform-prompt">
-                        🧵 Want to see this as a thread too? Just ask.
+                        🧵 Want to see this as a thread too? <strong>Just ask.</strong>
                     </div>
                 </>
             )}
@@ -229,7 +277,7 @@ function App() {
                 <>
                     <XThreadContent thread={xThread} displayMode={displayMode} />
                     <div className="cross-platform-prompt">
-                        📸 Want to see this as an Instagram post too? Just ask.
+                        📸 Want to see this as an Instagram post too? <strong>Just ask.</strong>
                     </div>
                 </>
             )}

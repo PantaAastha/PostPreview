@@ -1,0 +1,86 @@
+.x-validation-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f7f9f9;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    gap: 8px;
+}
+
+.x-validation-item {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    text-align: center;
+}
+
+.x-validation-label {
+    font-size: 11px;
+    color: #536471;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.x-validation-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f1419;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.x-validation-item--valid .x-validation-value {
+    color: #00ba7c;
+}
+
+.x-validation-item--warning .x-validation-value {
+    color: #f59e0b;
+}
+
+.x-validation-item--error .x-validation-value {
+    color: #ef4444;
+}
+
+.x-validation-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+    background: #fef2f2;
+    color: #dc2626;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.x-validation-divider {
+    width: 1px;
+    height: 24px;
+    background: #cfd9de;
+}
+
+/* Dark mode */
+[data-theme="dark"] .x-validation-bar {
+    background: #16181c;
+}
+
+[data-theme="dark"] .x-validation-label {
+    color: #71767b;
+}
+
+[data-theme="dark"] .x-validation-value {
+    color: #e7e9ea;
+}
+
+[data-theme="dark"] .x-validation-item--valid .x-validation-value {
+    color: #00ba7c;
+}
+
+[data-theme="dark"] .x-validation-divider {
+    background: #2f3336;
+}
+
+[data-theme="dark"] .x-validation-badge {
+    background: #450a0a;
+    color: #f87171;
+}

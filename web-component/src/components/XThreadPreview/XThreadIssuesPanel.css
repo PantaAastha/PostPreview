@@ -1,0 +1,134 @@
+.x-issues-panel {
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+.x-issues-panel--success {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0fdf4;
+    border: 1px solid #22c55e;
+    color: #15803d;
+}
+
+.x-issues-panel--warning {
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+}
+
+.x-issues-panel--error {
+    background: #fef2f2;
+    border: 1px solid #ef4444;
+}
+
+.x-issues-panel--info {
+    background: #eff6ff;
+    border: 1px solid #3b82f6;
+}
+
+.x-issues-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.x-issues-panel-icon {
+    font-size: 16px;
+}
+
+.x-issues-panel-status {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.x-issues-panel--warning .x-issues-panel-status {
+    color: #b45309;
+}
+
+.x-issues-panel--error .x-issues-panel-status {
+    color: #dc2626;
+}
+
+.x-issues-panel--info .x-issues-panel-status {
+    color: #1d4ed8;
+}
+
+.x-issues-panel-list {
+    margin: 0;
+    padding-left: 28px;
+    list-style: none;
+}
+
+.x-issues-panel-item {
+    position: relative;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 4px 0;
+}
+
+.x-issues-panel-item::before {
+    content: '•';
+    position: absolute;
+    left: -16px;
+}
+
+.x-issues-panel-item--warning {
+    color: #92400e;
+}
+
+.x-issues-panel-item--error {
+    color: #b91c1c;
+}
+
+.x-issues-panel-item--info {
+    color: #1e40af;
+}
+
+/* Dark mode */
+[data-theme="dark"] .x-issues-panel--success {
+    background: #052e16;
+    border-color: #22c55e;
+    color: #4ade80;
+}
+
+[data-theme="dark"] .x-issues-panel--warning {
+    background: #422006;
+    border-color: #f59e0b;
+}
+
+[data-theme="dark"] .x-issues-panel--error {
+    background: #450a0a;
+    border-color: #ef4444;
+}
+
+[data-theme="dark"] .x-issues-panel--info {
+    background: #172554;
+    border-color: #3b82f6;
+}
+
+[data-theme="dark"] .x-issues-panel--warning .x-issues-panel-status {
+    color: #fbbf24;
+}
+
+[data-theme="dark"] .x-issues-panel--error .x-issues-panel-status {
+    color: #f87171;
+}
+
+[data-theme="dark"] .x-issues-panel--info .x-issues-panel-status {
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .x-issues-panel-item--warning {
+    color: #fcd34d;
+}
+
+[data-theme="dark"] .x-issues-panel-item--error {
+    color: #fca5a5;
+}
+
+[data-theme="dark"] .x-issues-panel-item--info {
+    color: #93c5fd;
+}
