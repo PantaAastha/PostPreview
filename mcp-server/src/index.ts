@@ -48,19 +48,19 @@ const fileParamSchema = z.object({
 
 // Input schemas using Zod (as per OpenAI quickstart)
 const renderInstagramPostInputSchema = {
-    caption: z.string().describe('The caption text for the Instagram post'),
-    imageUrl: z.string().url().optional().describe('URL of the image to display in the post'),
+    caption: z.string().describe('The caption text for the Instagram post. Example: "Morning vibes at my favorite cafe ☕ #coffee #mornings"'),
+    imageUrl: z.string().url().optional().describe('URL of the image to display (e.g., "https://example.com/photo.jpg")'),
     image: fileParamSchema.optional().describe('Uploaded image file from ChatGPT'),
-    username: z.string().optional().describe('The username to display on the post'),
-    likes: z.number().optional().describe('Number of likes to display'),
-    isVerified: z.boolean().optional().describe('Whether to show a verified badge'),
+    username: z.string().optional().describe('The username for the post. Example: "@coffeeshop" or "coffeeshop"'),
+    likes: z.number().optional().describe('Number of likes to display (e.g., 1234)'),
+    isVerified: z.boolean().optional().describe('Whether to show a verified badge (true/false)'),
 };
 
 // X Thread input schema
 const renderXThreadInputSchema = {
-    content: z.string().describe('The long-form content to split into a Twitter/X thread'),
-    username: z.string().optional().describe('The username to display on the tweets (e.g., @username)'),
-    displayName: z.string().optional().describe('Display name shown on tweets'),
+    content: z.string().describe('The long-form content to split into a Twitter/X thread. Example: A blog post, article, or lengthy text to convert into thread format.'),
+    username: z.string().optional().describe('The username to display (e.g., "@creator")'),
+    displayName: z.string().optional().describe('Display name shown on tweets (e.g., "Content Creator")'),
 };
 
 // Multiplatform input schema (both Instagram + X thread)
@@ -115,8 +115,8 @@ function createPostPreviewServer(): McpServer {
     server.registerTool(
         'render_instagram_post',
         {
-            title: 'Render Instagram Post Preview',
-            description: 'Render a visual preview of an Instagram post. Use this tool when the user wants to see how their Instagram post will look, wants to create or preview captions, or is preparing social media content for Instagram.',
+            title: 'Preview Instagram Post',
+            description: 'Use this when the user wants to preview how their Instagram post will look, create or validate captions, check hashtag counts, or validate image dimensions before posting. Shows a realistic Instagram-style preview with validation. Do not use for scheduling, publishing, or actually posting to Instagram. Do not use for general questions about Instagram marketing.',
             inputSchema: renderInstagramPostInputSchema,
             _meta: {
                 'openai/outputTemplate': 'ui://widget/postpreview.html',
@@ -162,8 +162,8 @@ function createPostPreviewServer(): McpServer {
     server.registerTool(
         'render_x_thread',
         {
-            title: 'Render X/Twitter Thread Preview',
-            description: 'Split long-form content into a Twitter/X thread and show a visual preview. Use this tool when the user wants to create a Twitter thread, split a blog post or article into tweets, or preview how their content will look as a thread on X.',
+            title: 'Preview Twitter/X Thread',
+            description: 'Use this when the user wants to split long-form content into a Twitter/X thread, convert a blog post or article into tweets, or preview how their content will look as a thread. Shows tweet count, character validation, and hook analysis. Do not use for scheduling or actually posting to Twitter/X. Do not use for general questions about Twitter strategy.',
             inputSchema: renderXThreadInputSchema,
             _meta: {
                 'openai/outputTemplate': 'ui://widget/postpreview.html',
@@ -203,8 +203,8 @@ function createPostPreviewServer(): McpServer {
     server.registerTool(
         'render_multiplatform_post',
         {
-            title: 'Render Both Instagram Post and X Thread Preview',
-            description: 'Create BOTH an Instagram post AND a Twitter/X thread from content and show them in a single widget with tabs. Use this tool when the user wants previews for MULTIPLE platforms at once (e.g., "create an Instagram post and Twitter thread").',
+            title: 'Preview Both Instagram and Twitter/X',
+            description: 'Use this when the user wants previews for BOTH Instagram AND Twitter/X at the same time. Creates an Instagram post AND a Twitter thread from the same content, shown in a tabbed widget. Use when user explicitly asks for multiple platforms (e.g., "create for Instagram and Twitter"). Do not use for single-platform requests. Do not use for scheduling or actually posting.',
             inputSchema: renderMultiplatformInputSchema,
             _meta: {
                 'openai/outputTemplate': 'ui://widget/postpreview.html',
