@@ -6,6 +6,22 @@ Preview Instagram posts and Twitter/X threads directly in ChatGPT with realistic
 
 ![PostPreview](https://img.shields.io/badge/ChatGPT-App-00a67e?style=flat-square&logo=openai)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![V1](https://img.shields.io/badge/V1-Complete-brightgreen?style=flat-square)
+![V2](https://img.shields.io/badge/V2-In%20Planning-yellow?style=flat-square)
+
+---
+
+## 📍 Project Status
+
+**Version 1 is complete!** Core features for Instagram and Twitter/X preview are fully functional.
+
+**Version 2 is in planning.** See the [V2 Roadmap](./ROADMAP.md) for upcoming features including:
+- Caption Quality Scoring
+- Hashtag Suggestions
+- Thread Hook Analysis
+- Caption Variants
+- Export Enhancements
+- And more...
 
 ---
 
@@ -104,6 +120,7 @@ PostPreview/
 │       ├── components/   # UI components (InstagramPreview, XThreadPreview)
 │       ├── hooks/        # OpenAI Apps SDK integration
 │       └── utils/        # Validation, thread splitting
+├── ROADMAP.md            # V2 feature roadmap
 ├── TEST_PROMPTS.md       # Golden prompt set for testing
 └── README.md
 ```
