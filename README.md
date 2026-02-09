@@ -11,7 +11,20 @@ Preview Instagram posts and Twitter/X threads directly in ChatGPT with realistic
 
 ---
 
-## 📍 Project Status
+## Screenshots
+
+### Instagram Preview
+![Instagram Preview](./screenshots/instagram-widget.png)
+
+### Twitter/X Thread Preview
+![Twitter Thread Preview](./screenshots/twitter-thread-preview.png)
+
+### Full ChatGPT Integration
+![ChatGPT Integration](./screenshots/chatgpt-instagram-preview.png)
+
+---
+
+## Project Status
 
 **Version 1 is complete!** Core features for Instagram and Twitter/X preview are fully functional.
 
@@ -25,30 +38,30 @@ Preview Instagram posts and Twitter/X threads directly in ChatGPT with realistic
 
 ---
 
-## ✨ Features
+## Features
 
 ### Instagram Preview
-- 📸 Realistic Instagram post mockup
-- ✅ Caption validation (character limits, engagement tips)
-- #️⃣ Hashtag counter and optimization
-- 🖼️ Image dimension/aspect ratio validation
-- 📋 One-click copy (with or without hashtags)
+- Realistic Instagram post mockup
+- Caption validation (character limits, engagement tips)
+- Hashtag counter and optimization
+- Image dimension/aspect ratio validation
+- One-click copy (with or without hashtags)
 
 ### Twitter/X Thread Preview
-- 🧵 Auto-split long content into threads
-- 📊 Character count per tweet
-- 🎯 Hook quality analysis
-- ⚠️ Thread validation and warnings
-- 📋 Copy thread or individual tweets
+- Auto-split long content into threads
+- Character count per tweet
+- Hook quality analysis
+- Thread validation and warnings
+- Copy thread or individual tweets
 
 ### Multi-Platform
-- 🔄 Tabbed preview for both platforms at once
-- 🎨 Light/Dark mode support
-- 📱 Responsive compact/fullscreen modes
+- Tabbed preview for both platforms at once
+- Light/Dark mode support
+- Responsive compact/fullscreen modes
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+
@@ -98,7 +111,7 @@ cd mcp-server && npm run build && npm start
 
 ---
 
-## 🛠️ MCP Tools
+## MCP Tools
 
 | Tool | Description |
 |------|-------------|
@@ -108,7 +121,7 @@ cd mcp-server && npm run build && npm start
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 PostPreview/
@@ -127,7 +140,7 @@ PostPreview/
 
 ---
 
-## 🧪 Testing
+## Testing
 
 See [TEST_PROMPTS.md](./TEST_PROMPTS.md) for the complete testing guide including:
 - Direct prompts (explicitly mention PostPreview)
@@ -136,13 +149,13 @@ See [TEST_PROMPTS.md](./TEST_PROMPTS.md) for the complete testing guide includin
 
 ---
 
-## ⚠️ Known Limitations
+## Known Limitations
 
 - **Widget State Persistence**: When multiple widgets are created in one conversation, older widgets may lose their data. This is a ChatGPT platform limitation.
 - **MCP Prompts**: Starter prompts may not appear in developer mode connectors (works in published apps).
 
 ---
 
-## 📄 License
+## License
 
 MIT © [Aastha Panta](https://github.com/PantaAastha)
